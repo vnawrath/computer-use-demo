@@ -1,0 +1,2 @@
+I use `uv` on the project, so for all package needs use `uv add <package_name>` instead of pip install. Also use `uv run <script_name>` to run scripts, instead of just `python <script_name>`.
+You can run python scripts righ away, like `uv run hello_world.py`.

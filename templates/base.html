@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}{{ title }}{% endblock %}</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+        color: #ffffff;
+      }
+      .slide {
+        text-align: center;
+        padding: 2rem;
+        max-width: 800px;
+        width: 90%;
+      }
+      h1 {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(45deg, #3498db, #2ecc71);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      h2 {
+        font-size: 1.8rem;
+        color: #3498db;
+        margin-bottom: 2rem;
+        font-weight: 300;
+      }
+      .author-info {
+        margin-top: 4rem;
+        font-size: 1.2rem;
+        color: #888;
+      }
+      .author-info a {
+        color: #3498db;
+        text-decoration: none;
+      }
+      .author-info a:hover {
+        text-decoration: underline;
+      }
+      .navigation {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        display: flex;
+        gap: 1rem;
+      }
+      .nav-button {
+        background: rgba(52, 152, 219, 0.2);
+        border: 1px solid #3498db;
+        color: #fff;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .nav-button:hover {
+        background: rgba(52, 152, 219, 0.4);
+      }
+      .nav-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .diagram {
+        margin: 2rem auto;
+        max-width: 600px;
+      }
+      .diagram svg {
+        width: 100%;
+        height: auto;
+      }
+      .bullet-points {
+        text-align: left;
+        max-width: 600px;
+        margin: 2rem auto;
+        font-size: 1.2rem;
+        line-height: 1.6;
+      }
+      .bullet-points li {
+        margin-bottom: 1rem;
+        color: #e0e0e0;
+      }
+      {% block additional_styles %}{% endblock %}
+    </style>
+  </head>
+  <body>
+    <div class="slide">{% block content %}{% endblock %}</div>
+
+    <div class="navigation">
+      <a
+        href="{{ prev_url }}"
+        class="nav-button"
+        {%
+        if
+        not
+        prev_url
+        %}disabled{%
+        endif
+        %}
+      >
+        Previous
+      </a>
+      <a
+        href="{{ next_url }}"
+        class="nav-button"
+        {%
+        if
+        not
+        next_url
+        %}disabled{%
+        endif
+        %}
+      >
+        Next
+      </a>
+    </div>
+  </body>
+</html>

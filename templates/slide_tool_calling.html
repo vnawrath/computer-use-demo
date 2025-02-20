@@ -1,0 +1,108 @@
+{% extends "base.html" %} {% block content %}
+<h1>Tool Calling in LLMs</h1>
+<div class="diagram">
+  <svg viewBox="0 0 800 400">
+    <!-- LLM Box -->
+    <rect
+      x="300"
+      y="50"
+      width="200"
+      height="80"
+      rx="10"
+      fill="#3498db"
+      opacity="0.8"
+    />
+    <text x="400" y="95" text-anchor="middle" fill="white" font-size="20">
+      LLM
+    </text>
+
+    <!-- Tool Description Box -->
+    <rect
+      x="50"
+      y="160"
+      width="200"
+      height="80"
+      rx="10"
+      fill="#2ecc71"
+      opacity="0.8"
+    />
+    <text x="150" y="205" text-anchor="middle" fill="white" font-size="16">
+      Tool Descriptions
+    </text>
+
+    <!-- System Box -->
+    <rect
+      x="550"
+      y="160"
+      width="200"
+      height="80"
+      rx="10"
+      fill="#e74c3c"
+      opacity="0.8"
+    />
+    <text x="650" y="205" text-anchor="middle" fill="white" font-size="16">
+      System Functions
+    </text>
+
+    <!-- Arrows -->
+    <path
+      d="M150 160 L300 90"
+      stroke="white"
+      stroke-width="2"
+      marker-end="url(#arrowhead)"
+    />
+    <path
+      d="M500 90 L650 160"
+      stroke="white"
+      stroke-width="2"
+      marker-end="url(#arrowhead)"
+    />
+    <path
+      d="M650 240 L400 300"
+      stroke="white"
+      stroke-width="2"
+      marker-end="url(#arrowhead)"
+    />
+    <path
+      d="M150 240 L400 300"
+      stroke="white"
+      stroke-width="2"
+      marker-end="url(#arrowhead)"
+    />
+
+    <!-- Arrow Marker -->
+    <defs>
+      <marker
+        id="arrowhead"
+        markerWidth="10"
+        markerHeight="7"
+        refX="9"
+        refY="3.5"
+        orient="auto"
+      >
+        <polygon points="0 0, 10 3.5, 0 7" fill="white" />
+      </marker>
+    </defs>
+  </svg>
+</div>
+<div class="bullet-points">
+  <ul>
+    <li>
+      Tool descriptions define available functions and their parameters that the
+      LLM can use
+    </li>
+    <li>
+      The LLM analyzes user requests and generates structured JSON output for
+      tool calls
+    </li>
+    <li>
+      The system executes the actual functions and returns results back to the
+      LLM
+    </li>
+    <li>
+      This creates an interactive loop where the LLM can take actions in the
+      real world
+    </li>
+  </ul>
+</div>
+{% endblock %}
