@@ -64,13 +64,16 @@
         border-radius: 4px;
         cursor: pointer;
         transition: all 0.3s ease;
+        text-decoration: none;
       }
-      .nav-button:hover {
+      .nav-button:hover:not(.disabled) {
         background: rgba(52, 152, 219, 0.4);
       }
-      .nav-button:disabled {
+      .nav-button.disabled {
         opacity: 0.5;
         cursor: not-allowed;
+        pointer-events: none;
+        border-color: #666;
       }
       .diagram {
         margin: 2rem auto;
@@ -99,28 +102,14 @@
 
     <div class="navigation">
       <a
-        href="{{ prev_url }}"
-        class="nav-button"
-        {%
-        if
-        not
-        prev_url
-        %}disabled{%
-        endif
-        %}
+        href="{{ prev_url or '#' }}"
+        class="nav-button {% if not prev_url %}disabled{% endif %}"
       >
         Previous
       </a>
       <a
-        href="{{ next_url }}"
-        class="nav-button"
-        {%
-        if
-        not
-        next_url
-        %}disabled{%
-        endif
-        %}
+        href="{{ next_url or '#' }}"
+        class="nav-button {% if not next_url %}disabled{% endif %}"
       >
         Next
       </a>

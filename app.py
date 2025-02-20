@@ -6,6 +6,7 @@ app = Quart(__name__)
 SLIDES = [
     ("title", "Title"),
     ("tool_calling", "Tool Calling"),
+    ("history", "Evolution"),
 ]
 
 
@@ -51,6 +52,17 @@ async def slide_tool_calling():
     return await render_template(
         "slide_tool_calling.html",
         title="Tool Calling in LLMs",
+        prev_url=prev_url,
+        next_url=next_url,
+    )
+
+
+@app.route("/slides/history")
+async def slide_history():
+    prev_url, next_url = get_navigation_urls("history")
+    return await render_template(
+        "slide_history.html",
+        title="Evolution of Browser/Computer Control",
         prev_url=prev_url,
         next_url=next_url,
     )
