@@ -1,0 +1,26 @@
+{% extends "base.html" %} {% block additional_styles %} .content-container {
+display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start;
+max-width: 1400px; margin: 0 auto; height: calc(100vh - 200px); }
+.chat-interface { background: rgba(255, 255, 255, 0.1); border-radius: 10px;
+padding: 1rem; height: 100%; display: flex; flex-direction: column; }
+.desktop-view { background: rgba(0, 0, 0, 0.2); border-radius: 10px; padding:
+1rem; height: 100%; display: flex; flex-direction: column; align-items: center;
+justify-content: center; } .desktop-screenshot { max-width: 100%; max-height:
+100%; object-fit: contain; border-radius: 5px; } {% endblock %} {% block content
+%}
+<h1>Claude Computer Use</h1>
+<div class="content-container">
+  <div class="chat-interface">
+    <h2>Chat Interface</h2>
+    <!-- Chat interface will be added later -->
+  </div>
+  <div class="desktop-view">
+    <img
+      id="desktop-screenshot"
+      class="desktop-screenshot"
+      alt="Desktop Environment"
+      src="/desktop-stream"
+    />
+  </div>
+</div>
+{% endblock %}

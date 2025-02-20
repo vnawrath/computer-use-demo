@@ -4,13 +4,21 @@ This repository contains a presentation about how Large Language Models (LLMs) c
 
 ## Running the Presentation
 
-1. Sync dependencies with the virtual environment:
+1. Sign up for an E2B API key at https://e2b.dev/
+
+2. Create a `.env` file in the root directory and add your E2B API key:
+
+```bash
+E2B_API_KEY=your_api_key_here
+```
+
+3. Sync dependencies with the virtual environment:
 
 ```bash
 uv sync
 ```
 
-2. Run the application:
+4. Run the application:
 
 ```bash
 uv run app.py
