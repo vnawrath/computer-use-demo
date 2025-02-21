@@ -1,15 +1,9 @@
 import os
 import base64
-import logging
 from typing import List, Dict, Any, Optional, Callable, Awaitable
 from anthropic import Anthropic
 from desktop_sandbox import DesktopManager
 import asyncio
-
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
 
 
 class ComputerUseClient:
@@ -42,8 +36,6 @@ class ComputerUseClient:
 
         # Get actual screen dimensions
         width, height = self.desktop.get_screen_size()
-
-        logger.info(f"Screen dimensions: {width}x{height}")
 
         # Default computer use tool configuration with actual dimensions
         self.default_tools = [
@@ -80,7 +72,6 @@ class ComputerUseClient:
             List of response content items
         """
         tool_response_content = []
-        logger.info(f"Handling computer action: {action}")
 
         try:
             if action == "screenshot":
@@ -94,49 +85,40 @@ class ComputerUseClient:
                     else:
                         x, y = coordinate["x"], coordinate["y"]
                 except (KeyError, TypeError, IndexError) as e:
-                    logger.error(f"Failed to extract x,y coordinates: {e}")
-                    logger.error(f"Coordinate structure: {coordinate}")
                     raise
 
-                logger.info(f"Moving mouse to ({x}, {y})")
                 await self.desktop.move_mouse(x, y)
                 tool_response_content.append(
                     {"type": "text", "text": f"Moved mouse to ({x}, {y})"}
                 )
             elif action == "left_click":
-                logger.info("Performing left click")
                 await self.desktop.left_click()
                 tool_response_content.append(
                     {"type": "text", "text": "Performed left click"}
                 )
             elif action == "right_click":
-                logger.info("Performing right click")
                 await self.desktop.right_click()
                 tool_response_content.append(
                     {"type": "text", "text": "Performed right click"}
                 )
             elif action == "middle_click":
-                logger.info("Performing middle click")
                 await self.desktop.middle_click()
                 tool_response_content.append(
                     {"type": "text", "text": "Performed middle click"}
                 )
             elif action == "double_click":
-                logger.info("Performing double click")
                 await self.desktop.double_click()
                 tool_response_content.append(
                     {"type": "text", "text": "Performed double click"}
                 )
             elif action == "scroll":
                 amount = input_data.get("amount", 0)
-                logger.info(f"Scrolling by {amount}")
                 await self.desktop.scroll(amount)
                 tool_response_content.append(
                     {"type": "text", "text": f"Scrolled by {amount}"}
                 )
             elif action == "type":
                 text = input_data["text"]
-                logger.info(f"Typing text: {text}")
                 await self.desktop.write(text)
                 tool_response_content.append(
                     {"type": "text", "text": f"Typed text: {text}"}
@@ -145,7 +127,6 @@ class ComputerUseClient:
                 # Handle both single key and hotkey combinations
                 keys = input_data["text"].split("+")
                 if len(keys) > 1:
-                    logger.info(f"Pressing hotkey combination: {'+'.join(keys)}")
                     await self.desktop.hotkey(*keys)
                     tool_response_content.append(
                         {"type": "text", "text": f"Pressed hotkey: {'+'.join(keys)}"}
@@ -154,19 +135,16 @@ class ComputerUseClient:
                     key = keys[0]
                     # Handle special keys
                     if key == "Return":
-                        logger.info("Pressing enter key")
                         await self.desktop.press("enter")
                         tool_response_content.append(
                             {"type": "text", "text": "Pressed enter key"}
                         )
                     else:
-                        logger.info(f"Pressing key: {key}")
                         await self.desktop.write(key)
                         tool_response_content.append(
                             {"type": "text", "text": f"Pressed key: {key}"}
                         )
             else:
-                logger.warning(f"Unsupported action: {action}")
                 tool_response_content.append(
                     {"type": "text", "text": f"Unsupported action: {action}"}
                 )
@@ -182,7 +160,6 @@ class ComputerUseClient:
 
         except Exception as e:
             error_msg = f"Error performing {action}: {str(e)}"
-            logger.error(error_msg)
             tool_response_content.append({"type": "text", "text": error_msg})
             if message_callback:
                 await message_callback(
@@ -222,45 +199,17 @@ class ComputerUseClient:
         """Send an instruction to Claude with computer use capabilities asynchronously.
 
         Args:
-            instruction: The instruction for Claude to execute
-            system_message: Optional system message to guide Claude's behavior
-            max_tokens: Maximum tokens in the response
+            instruction: The instruction to send to Claude
+            system_message: Optional system message to override default
+            max_tokens: Maximum tokens in response
             temperature: Temperature for response generation
             max_iterations: Maximum number of tool call iterations
             message_callback: Optional callback for streaming updates
 
         Returns:
-            Claude's final response message
+            Dict containing the final response
         """
-        if system_message is None:
-            system_message = """You are a helpful AI assistant with access to computer controls.
-            Follow the user's instructions carefully and use the computer interface when needed.
-            Always explain what you're doing before taking actions."""
-
-        # Start with the user's instruction
-        messages = self.message_history.copy()
-        user_message = {
-            "role": "user",
-            "content": [{"type": "text", "text": instruction}],
-        }
-
-        # Take a screenshot before sending to Claude
-        screenshot = await self.desktop.take_screenshot()
-        screenshot_b64 = base64.b64encode(screenshot).decode("utf-8")
-
-        # Add screenshot to the message
-        user_message["content"].append(
-            {
-                "type": "image",
-                "source": {
-                    "type": "base64",
-                    "media_type": "image/jpeg",
-                    "data": screenshot_b64,
-                },
-            }
-        )
-
-        messages.append(user_message)
+        messages = [{"role": "user", "content": instruction}]
         iteration = 0
 
         while iteration < max_iterations:
@@ -274,9 +223,6 @@ class ComputerUseClient:
                     messages=messages,
                     tools=self._prepare_computer_tools(),
                 )
-
-                # Process the response immediately since it's already resolved
-                logger.info("Received response from Claude API")
 
                 # Convert Claude's response to a message
                 try:
@@ -298,8 +244,6 @@ class ComputerUseClient:
                     messages.append(assistant_message)
 
                 except Exception as e:
-                    logger.error(f"Error creating assistant_message: {e}")
-                    logger.error(f"Error type: {type(e)}")
                     raise
 
                 if message_callback:
@@ -314,18 +258,14 @@ class ComputerUseClient:
                                     }
                                 )
                             except Exception as e:
-                                logger.error(f"Error in message callback: {e}")
                                 raise
 
                 has_tool_call = False
                 message_content = []
 
                 for block in response.content:
-                    logger.info(f"Processing block type: {block.type}")
-
                     if block.type == "tool_use":
                         has_tool_call = True
-                        logger.info(f"Tool call: {block.name}")
 
                         if block.name == "computer":
                             try:
@@ -345,7 +285,6 @@ class ComputerUseClient:
                                     }
                                 )
                             except Exception as e:
-                                logger.error(f"Error in computer action: {e}")
                                 raise
 
                 if message_content:
@@ -363,7 +302,6 @@ class ComputerUseClient:
                 iteration += 1
 
             except Exception as e:
-                logger.error(f"Error in tool call iteration {iteration}: {e}")
                 if message_callback:
                     await message_callback(
                         {"type": "error", "text": f"Error: {str(e)}"}
@@ -374,7 +312,6 @@ class ComputerUseClient:
         self.message_history = messages
 
         if iteration == max_iterations:
-            logger.warning("Max iterations reached without final response")
             return response
 
         return response

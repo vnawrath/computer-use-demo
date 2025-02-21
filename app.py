@@ -3,12 +3,14 @@ import io
 from desktop_sandbox import DesktopManager
 from computer_use import ComputerUseClient
 from message_handler import MessageHandler
+from omniparser_manager import OmniParserManager
 import json
 
 app = Quart(__name__)
 desktop_manager = DesktopManager()
 computer_use_client = ComputerUseClient()
 message_handler = MessageHandler()
+omniparser_manager = OmniParserManager()
 
 # Define the slide order
 SLIDES = [
@@ -16,6 +18,7 @@ SLIDES = [
     ("tool_calling", "Tool Calling"),
     ("history", "Evolution"),
     ("claude_computer", "Claude Computer Use"),
+    ("providers", "Other Providers"),
 ]
 
 
@@ -88,6 +91,17 @@ async def slide_claude_computer():
     )
 
 
+@app.route("/slides/providers")
+async def slide_providers():
+    prev_url, next_url = get_navigation_urls("providers")
+    return await render_template(
+        "slide_providers.html",
+        title="Other Computer Use Providers",
+        prev_url=prev_url,
+        next_url=next_url,
+    )
+
+
 @app.route("/desktop-stream")
 async def desktop_stream():
     """Endpoint to get the latest desktop screenshot"""
@@ -123,25 +137,70 @@ async def chat():
                     json.dumps({"type": "error", "content": "Invalid message format"})
                 )
 
-    except Exception as e:
+    except Exception:
         pass
     finally:
         await message_handler.unregister(websocket._get_current_object())
 
 
+@app.websocket("/ws/omniparser")
+async def omniparser_websocket():
+    """WebSocket endpoint for OmniParser analysis"""
+    try:
+        while True:
+            try:
+                # Receive message from client
+                message = await websocket.receive()
+                data = json.loads(message)
+
+                if data["type"] == "analyze_request":
+                    # Send analysis started event
+                    await websocket.send(json.dumps({"type": "analysis_started"}))
+
+                    try:
+                        # Get current screenshot
+                        screenshot = await desktop_manager.take_screenshot()
+
+                        # Analyze the screenshot
+                        detections = await omniparser_manager.analyze_image(screenshot)
+
+                        # Send results back to client
+                        response = {
+                            "type": "analysis_complete",
+                            "detections": detections,
+                        }
+                        await websocket.send(json.dumps(response))
+
+                    except Exception as e:
+                        error_msg = str(e)
+                        await websocket.send(
+                            json.dumps({"type": "analysis_error", "error": error_msg})
+                        )
+
+            except json.JSONDecodeError:
+                await websocket.send(
+                    json.dumps({"type": "error", "content": "Invalid message format"})
+                )
+
+    except Exception:
+        pass
+
+
 @app.before_serving
 async def startup():
-    """Initialize the desktop sandbox before serving"""
-    global desktop_manager, computer_use_client
+    """Initialize the desktop sandbox and other managers before serving"""
+    global desktop_manager, computer_use_client, omniparser_manager
     desktop_manager = DesktopManager()
     computer_use_client = ComputerUseClient()
+    omniparser_manager = OmniParserManager()
 
 
 @app.after_serving
 async def shutdown():
-    """Cleanup the desktop sandbox after serving"""
+    """Cleanup resources after serving"""
     await desktop_manager.cleanup()
     await computer_use_client.cleanup()
+    await omniparser_manager.cleanup()
 
 
 if __name__ == "__main__":

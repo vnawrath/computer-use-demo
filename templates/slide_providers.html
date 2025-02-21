@@ -1,0 +1,146 @@
+{% extends "base.html" %} {% block additional_styles %} .content-container {
+max-width: 1200px; margin: 0 auto; padding: 2rem; } .providers-list {
+list-style: none; padding: 0; } .provider-item { background: rgba(255, 255, 255,
+0.1); border-radius: 10px; margin-bottom: 1rem; overflow: hidden; }
+.provider-header { padding: 1rem; cursor: pointer; display: flex; align-items:
+center; gap: 1rem; background: rgba(255, 255, 255, 0.05); }
+.provider-header:hover { background: rgba(255, 255, 255, 0.1); }
+.provider-header::before { content: '▶'; transition: transform 0.3s ease; }
+.provider-header.active::before { transform: rotate(90deg); } .provider-content
+{ max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;
+padding: 0 1rem; } .provider-content.active { max-height: 800px; padding: 1rem;
+} .provider-details { display: flex; flex-direction: column; gap: 0.25rem; }
+.provider-link { color: #64B5F6; text-decoration: none; font-family: monospace;
+background: rgba(0, 0, 0, 0.2); padding: 0.5rem; border-radius: 4px; display:
+inline-block; } .provider-link:hover { text-decoration: underline; background:
+rgba(0, 0, 0, 0.3); } .provider-description { font-size: 1.1rem; line-height:
+1.3; color: rgba(255, 255, 255, 0.9); margin: 0; padding: 0.1rem 0; }
+.provider-image { max-width: 100%; border-radius: 8px; margin-top: 0.5rem; } /*
+OmniParser Demo Styles */ #omniparser-demo { margin-top: 1rem; position:
+relative; width: 100%; aspect-ratio: 16/9; background: rgba(0, 0, 0, 0.2);
+border-radius: 8px; overflow: hidden; display: flex; justify-content: center;
+align-items: center; } .analyze-button { position: absolute; bottom: 1rem;
+right: 1rem; background: #4CAF50; color: white; border: none; padding: 0.5rem
+1rem; border-radius: 4px; cursor: pointer; z-index: 10; } .analyze-button:hover
+{ background: #45a049; } .analyze-button:disabled { background: #666; cursor:
+not-allowed; } .loading-indicator { position: absolute; top: 50%; left: 50%;
+transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.8); color: white;
+padding: 0.5rem 1rem; border-radius: 4px; z-index: 20; } .detection-overlay {
+position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+width: auto; height: 100%; pointer-events: none; } #omniparser-demo img { width:
+auto; height: 100%; object-fit: contain; } {% endblock %} {% block content %}
+<div class="content-container">
+  <h1>Other Computer Use Providers</h1>
+
+  <ul class="providers-list">
+    <li class="provider-item">
+      <div class="provider-header" onclick="toggleProvider(this)">
+        OpenAI Operator
+      </div>
+      <div class="provider-content">
+        <div class="provider-details">
+          <a
+            href="https://openai.com/operator"
+            class="provider-link"
+            target="_blank"
+            >https://openai.com/operator</a
+          >
+          <p class="provider-description">
+            A powerful but expensive solution at $200.
+          </p>
+          <img
+            src="{{ url_for('static', filename='images/openai-operator.png') }}"
+            alt="OpenAI Operator"
+            class="provider-image"
+          />
+        </div>
+      </div>
+    </li>
+
+    <li class="provider-item">
+      <div class="provider-header" onclick="toggleProvider(this)">
+        BrowserUse
+      </div>
+      <div class="provider-content">
+        <div class="provider-details">
+          <a
+            href="https://github.com/browser-use/browser-use"
+            class="provider-link"
+            target="_blank"
+            >https://github.com/browser-use/browser-use</a
+          >
+          <p class="provider-description">
+            A hybrid approach that combines visual understanding with HTML
+            grounding.
+          </p>
+          <img
+            src="{{ url_for('static', filename='images/browser-use.png') }}"
+            alt="BrowserUse"
+            class="provider-image"
+          />
+        </div>
+      </div>
+    </li>
+
+    <li class="provider-item">
+      <div class="provider-header" onclick="toggleProvider(this)">
+        Qwen2.5-VL
+      </div>
+      <div class="provider-content">
+        <div class="provider-details">
+          <a
+            href="https://github.com/QwenLM/Qwen-VL"
+            class="provider-link"
+            target="_blank"
+            >https://github.com/QwenLM/Qwen-VL</a
+          >
+          <p class="provider-description">
+            An open weights model with visual language capabilities.
+          </p>
+          <img
+            src="{{ url_for('static', filename='images/qwen-vl.png') }}"
+            alt="Qwen2.5-VL"
+            class="provider-image"
+          />
+        </div>
+      </div>
+    </li>
+
+    <li class="provider-item">
+      <div class="provider-header" onclick="toggleProvider(this)">
+        OmniParser
+      </div>
+      <div class="provider-content">
+        <div class="provider-details">
+          <a
+            href="https://github.com/omniparser/omniparser"
+            class="provider-link"
+            target="_blank"
+            >https://github.com/omniparser/omniparser</a
+          >
+          <p class="provider-description">
+            A small model for screen understanding that can enhance other
+            language models.
+          </p>
+          <div id="omniparser-demo">
+            <img
+              src="/desktop-stream"
+              alt="Current Desktop"
+              style="width: 100%; height: 100%; object-fit: contain"
+            />
+          </div>
+        </div>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<script src="{{ url_for('static', filename='js/omniparser_demo.js') }}"></script>
+<script>
+  function toggleProvider(header) {
+    header.classList.toggle("active");
+    const content = header.nextElementSibling;
+    content.classList.toggle("active");
+  }
+</script>
+{% endblock %}
