@@ -1,9 +1,14 @@
-from quart import Quart, render_template, redirect, url_for, send_file
+from quart import Quart, render_template, redirect, url_for, send_file, websocket
 import io
 from desktop_sandbox import DesktopManager
+from computer_use import ComputerUseClient
+from message_handler import MessageHandler
+import json
 
 app = Quart(__name__)
 desktop_manager = DesktopManager()
+computer_use_client = ComputerUseClient()
+message_handler = MessageHandler()
 
 # Define the slide order
 SLIDES = [
@@ -86,21 +91,57 @@ async def slide_claude_computer():
 @app.route("/desktop-stream")
 async def desktop_stream():
     """Endpoint to get the latest desktop screenshot"""
-    screenshot = desktop_manager.take_screenshot()
+    screenshot = await desktop_manager.take_screenshot()
     return await send_file(io.BytesIO(screenshot), mimetype="image/jpeg")
+
+
+@app.websocket("/ws/chat")
+async def chat():
+    """WebSocket endpoint for chat functionality"""
+    try:
+        await message_handler.register(websocket._get_current_object())
+
+        while True:
+            try:
+                # Receive message from client
+                message = await websocket.receive()
+                data = json.loads(message)
+
+                if data["type"] == "instruction":
+                    # Handle the instruction
+                    instruction_id = await message_handler.handle_instruction(
+                        data["content"], computer_use_client
+                    )
+
+                    # Wait for instruction to complete
+                    await message_handler.wait_for_instruction_completion(
+                        instruction_id
+                    )
+
+            except json.JSONDecodeError:
+                await websocket.send(
+                    json.dumps({"type": "error", "content": "Invalid message format"})
+                )
+
+    except Exception as e:
+        pass
+    finally:
+        await message_handler.unregister(websocket._get_current_object())
 
 
 @app.before_serving
 async def startup():
     """Initialize the desktop sandbox before serving"""
-    global desktop_manager
+    global desktop_manager, computer_use_client
     desktop_manager = DesktopManager()
+    computer_use_client = ComputerUseClient()
 
 
 @app.after_serving
 async def shutdown():
     """Cleanup the desktop sandbox after serving"""
-    desktop_manager.cleanup()
+    await desktop_manager.cleanup()
+    await computer_use_client.cleanup()
 
 
 if __name__ == "__main__":

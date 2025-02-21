@@ -6,10 +6,11 @@ This repository contains a presentation about how Large Language Models (LLMs) c
 
 1. Sign up for an E2B API key at https://e2b.dev/
 
-2. Create a `.env` file in the root directory and add your E2B API key:
+2. Create a `.env` file in the root directory and add your API keys:
 
 ```bash
 E2B_API_KEY=your_api_key_here
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
 ```
 
 3. Sync dependencies with the virtual environment:

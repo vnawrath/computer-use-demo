@@ -5,8 +5,11 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "anthropic>=0.46.0",
     "e2b-desktop>=1.0.2",
     "pillow>=11.1.0",
     "python-dotenv>=1.0.1",
     "quart>=0.20.0",
+    "uuid>=1.30",
+    "websockets>=15.0",
 ]

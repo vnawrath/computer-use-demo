@@ -2,6 +2,7 @@ from e2b_desktop import Sandbox
 import io
 from PIL import Image
 from dotenv import load_dotenv
+import asyncio
 
 load_dotenv()
 
@@ -20,6 +21,14 @@ class DesktopManager:
         if self._sandbox is None:
             self._sandbox = Sandbox(video_stream=True)
 
+    def get_screen_size(self):
+        """Get the current screen size from the sandbox.
+
+        Returns:
+            tuple: A tuple containing (width, height) of the screen.
+        """
+        return self._sandbox.get_screen_size()
+
     @property
     def sandbox(self):
         return self._sandbox
@@ -27,18 +36,68 @@ class DesktopManager:
     def get_stream_url(self):
         return self._sandbox.get_video_stream_url()
 
-    def take_screenshot(self):
+    async def move_mouse(self, x: int, y: int):
+        """Move mouse to specified coordinates"""
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, lambda: self._sandbox.move_mouse(x, y))
+
+    async def left_click(self):
+        """Perform left click"""
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, self._sandbox.left_click)
+
+    async def right_click(self):
+        """Perform right click"""
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, self._sandbox.right_click)
+
+    async def middle_click(self):
+        """Perform middle click"""
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, self._sandbox.middle_click)
+
+    async def double_click(self):
+        """Perform double click"""
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, self._sandbox.double_click)
+
+    async def scroll(self, amount: int):
+        """Scroll by specified amount"""
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, lambda: self._sandbox.scroll(amount))
+
+    async def write(self, text: str):
+        """Write text"""
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, lambda: self._sandbox.write(text))
+
+    async def press(self, key: str):
+        """Press a special key"""
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, lambda: self._sandbox.press(key))
+
+    async def hotkey(self, *keys: str):
+        """Press hotkey combination"""
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, lambda: self._sandbox.hotkey(*keys))
+
+    async def take_screenshot(self):
         """Take a screenshot and return it as bytes"""
-        screenshot_bytes = self._sandbox.take_screenshot()
+        loop = asyncio.get_event_loop()
+        screenshot_bytes = await loop.run_in_executor(
+            None, self._sandbox.take_screenshot
+        )
         image = Image.open(io.BytesIO(screenshot_bytes))
 
         # Convert to JPEG for smaller size
         output = io.BytesIO()
-        image.save(output, format="JPEG", quality=85)
+        await loop.run_in_executor(
+            None, lambda: image.save(output, format="JPEG", quality=85)
+        )
         return output.getvalue()
 
-    def cleanup(self):
+    async def cleanup(self):
         """Cleanup the sandbox when needed"""
         if self._sandbox:
-            self._sandbox.close()
+            await asyncio.get_event_loop().run_in_executor(None, self._sandbox.close)
             self._sandbox = None
