@@ -1,0 +1,43 @@
+{% extends "base.html" %} {% block additional_styles %} .content-container {
+display: flex; flex-direction: column; gap: 2rem; max-width: 1200px; margin: 0
+auto; padding: 2rem; } .bullet-points { font-size: 1.5rem; line-height: 1.6; }
+.bullet-points ul { list-style-type: none; padding-left: 0; } .bullet-points li
+{ margin-bottom: 1.5rem; padding-left: 2rem; position: relative; }
+.bullet-points li::before { content: "•"; position: absolute; left: 0; color:
+#3498db; } .bullet-points ul ul { padding-left: 2rem; margin-top: 1rem; }
+.bullet-points ul ul li { font-size: 1.3rem; margin-bottom: 1rem; }
+.bullet-points ul ul li::before { content: "◦"; color: #e74c3c; } {% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+
+<div class="content-container">
+  <div class="bullet-points">
+    <ul>
+      <li>
+        Planning
+        <ul>
+          <li>
+            Models excel at individual actions but struggle with complex task
+            chains
+          </li>
+        </ul>
+      </li>
+      <li>
+        Reinforcement Learning
+        <ul>
+          <li>Computer use is a "verifiable domain" - perfect for RL</li>
+        </ul>
+      </li>
+      <li>
+        Simplified Representation
+        <ul>
+          <li>
+            Learning condensed representations of the websites during
+            interaction
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

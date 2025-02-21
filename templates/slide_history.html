@@ -6,16 +6,16 @@ SVG */ } .comparison-section { display: grid; grid-template-columns: 1fr 1fr;
 gap: 2rem; margin-top: 2rem; } .approach-box { background: rgba(255, 255, 255,
 0.1); border-radius: 10px; padding: 2rem; } .approach-box h3 { margin-top: 0;
 color: #fff; font-size: 1.5rem; margin-bottom: 1rem; } .challenge-list {
-list-style-type: none; padding: 0; margin: 0; } .challenge-list li {
-margin-bottom: 1rem; padding-left: 1.5rem; position: relative; } .challenge-list
-li::before { content: "•"; position: absolute; left: 0; } .html-approach
-.challenge-list > li::before { color: #3498db; } .visual-approach
-.challenge-list > li::before { color: #e74c3c; } .challenge-list ul {
-list-style-type: none; padding-left: 1.5rem; margin-top: 0.5rem; }
-.challenge-list ul li { margin-bottom: 0.5rem; } .challenge-list ul li::before {
-content: "◦"; color: rgba(255, 255, 255, 0.7); } {% endblock %} {% block content
-%}
-<h1>Evolution of Browser/Computer Control</h1>
+list-style-type: none; padding: 0; margin: 0; text-align: left; }
+.challenge-list li { margin-bottom: 1rem; padding-left: 1.5rem; position:
+relative; text-align: left; } .challenge-list li::before { content: "•";
+position: absolute; left: 0; } .html-approach .challenge-list > li::before {
+color: #3498db; } .visual-approach .challenge-list > li::before { color:
+#e74c3c; } .challenge-list ul { list-style-type: none; padding-left: 1.5rem;
+margin-top: 0.5rem; } .challenge-list ul li { margin-bottom: 0.5rem; }
+.challenge-list ul li::before { content: "◦"; color: rgba(255, 255, 255, 0.7); }
+{% endblock %} {% block content %}
+<h1>Computer Use Evolution</h1>
 
 <div class="content-container">
   <div class="timeline">
@@ -70,7 +70,7 @@ content: "◦"; color: rgba(255, 255, 255, 0.7); } {% endblock %} {% block conte
       <g transform="translate(700, 75)">
         <circle cx="0" cy="0" r="20" fill="#e74c3c" />
         <text x="0" y="50" text-anchor="middle" fill="white" font-size="14">
-          Visual-Based
+          Visual
         </text>
       </g>
     </svg>
@@ -78,7 +78,7 @@ content: "◦"; color: rgba(255, 255, 255, 0.7); } {% endblock %} {% block conte
 
   <div class="comparison-section">
     <div class="approach-box html-approach">
-      <h3>HTML-Only Approach</h3>
+      <h3>HTML</h3>
       <ul class="challenge-list">
         <li>Excessive noise requiring HTML preprocessing</li>
         <li>Difficult interaction with poorly marked-up components</li>
@@ -95,7 +95,7 @@ content: "◦"; color: rgba(255, 255, 255, 0.7); } {% endblock %} {% block conte
     </div>
 
     <div class="approach-box visual-approach">
-      <h3>Visual Approach</h3>
+      <h3>Visual</h3>
       <ul class="challenge-list">
         <li>
           Requires advanced spatial awareness

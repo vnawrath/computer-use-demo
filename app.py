@@ -19,6 +19,8 @@ SLIDES = [
     ("history", "Evolution"),
     ("claude_computer", "Claude Computer Use"),
     ("providers", "Other Providers"),
+    ("future", "Future"),
+    ("thank_you", "Thank You"),
 ]
 
 
@@ -97,6 +99,28 @@ async def slide_providers():
     return await render_template(
         "slide_providers.html",
         title="Other Computer Use Providers",
+        prev_url=prev_url,
+        next_url=next_url,
+    )
+
+
+@app.route("/slides/future")
+async def slide_future():
+    prev_url, next_url = get_navigation_urls("future")
+    return await render_template(
+        "slide_future.html",
+        title="Future of Computer Use Agents",
+        prev_url=prev_url,
+        next_url=next_url,
+    )
+
+
+@app.route("/slides/thank-you")
+async def slide_thank_you():
+    prev_url, next_url = get_navigation_urls("thank_you")
+    return await render_template(
+        "slide_thank_you.html",
+        title="Thank You",
         prev_url=prev_url,
         next_url=next_url,
     )
