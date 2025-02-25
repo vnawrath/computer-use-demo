@@ -87,6 +87,11 @@ async def slide_history():
 @app.route("/slides/claude-computer")
 async def slide_claude_computer():
     prev_url, next_url = get_navigation_urls("claude_computer")
+    # Start both the desktop sandbox and computer use client when reaching this slide
+    if not desktop_manager.is_running:
+        await desktop_manager.start()
+    if not computer_use_client.is_running:
+        await computer_use_client.start()
     return await render_template(
         "slide_claude_computer.html",
         title="Claude Computer Use",
@@ -133,6 +138,20 @@ async def desktop_stream():
     """Endpoint to get the latest desktop screenshot"""
     screenshot = await desktop_manager.take_screenshot()
     return await send_file(io.BytesIO(screenshot), mimetype="image/jpeg")
+
+
+@app.route("/desktop/restart", methods=["POST"])
+async def restart_desktop():
+    """Endpoint to restart both the desktop sandbox and computer use client"""
+    try:
+        await desktop_manager.restart()
+        await computer_use_client.restart()
+        return {
+            "status": "success",
+            "message": "Desktop environment restarted successfully",
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}, 500
 
 
 @app.websocket("/ws/chat")
@@ -237,10 +256,12 @@ async def omniparser_websocket():
 
 @app.before_serving
 async def startup():
-    """Initialize the desktop sandbox and other managers before serving"""
+    """Initialize managers before serving"""
     global desktop_manager, computer_use_client, omniparser_manager
-    desktop_manager = DesktopManager()
-    computer_use_client = ComputerUseClient()
+    desktop_manager = DesktopManager()  # This no longer starts the sandbox immediately
+    computer_use_client = (
+        ComputerUseClient()
+    )  # This only initializes the client, doesn't start it
     omniparser_manager = OmniParserManager()
 
 
@@ -248,7 +269,7 @@ async def startup():
 async def shutdown():
     """Cleanup resources after serving"""
     await desktop_manager.cleanup()
-    await computer_use_client.cleanup()
+    await computer_use_client.stop()  # Use stop instead of cleanup
     await omniparser_manager.cleanup()
 
 

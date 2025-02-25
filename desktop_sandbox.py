@@ -14,12 +14,36 @@ class DesktopManager:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(DesktopManager, cls).__new__(cls)
-            cls._instance._initialize()
         return cls._instance
 
-    def _initialize(self):
-        if self._sandbox is None:
-            self._sandbox = Sandbox(timeout=3_600)
+    @property
+    def is_running(self):
+        """Check if the sandbox is running"""
+        return self._sandbox is not None
+
+    async def start(self):
+        """Start the sandbox if it's not already running"""
+        if not self.is_running:
+            loop = asyncio.get_event_loop()
+            self._sandbox = await loop.run_in_executor(
+                None, lambda: Sandbox(timeout=3_600)
+            )
+
+    async def stop(self):
+        """Stop the sandbox if it's running"""
+        if self.is_running:
+            await self.cleanup()
+
+    async def restart(self):
+        """Restart the sandbox"""
+        await self.stop()
+        await self.start()
+
+    @property
+    def sandbox(self):
+        if not self.is_running:
+            raise RuntimeError("Sandbox is not running. Call start() first.")
+        return self._sandbox
 
     def get_screen_size(self):
         """Get the current screen size from the sandbox.
@@ -28,10 +52,6 @@ class DesktopManager:
             tuple: A tuple containing (width, height) of the screen.
         """
         return self._sandbox.get_screen_size()
-
-    @property
-    def sandbox(self):
-        return self._sandbox
 
     async def move_mouse(self, x: int, y: int):
         """Move mouse to specified coordinates"""

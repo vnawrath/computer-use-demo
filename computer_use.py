@@ -38,22 +38,45 @@ class ComputerUseClient:
         self.client = Anthropic(api_key=self.api_key)
         self.desktop = DesktopManager()
         self.message_history = []
-
-        # Get actual screen dimensions
-        width, height = self.desktop.get_screen_size()
-
-        # Default computer use tool configuration with actual dimensions
-        self.default_tools = [
-            {
-                "type": "computer_20241022",
-                "name": "computer",
-                "display_width_px": width,
-                "display_height_px": height,
-                "display_number": 1,
-            }
-        ]
-
         self._initialized = True
+        self._started = False
+
+    @property
+    def is_running(self):
+        """Check if the client is running and ready to handle instructions"""
+        return self._initialized and self._started and self.desktop.is_running
+
+    async def start(self):
+        """Start the computer use client if not already running"""
+        if not self._started:
+            if not self.desktop.is_running:
+                await self.desktop.start()
+
+            # Get actual screen dimensions
+            width, height = self.desktop.get_screen_size()
+
+            # Default computer use tool configuration with actual dimensions
+            self.default_tools = [
+                {
+                    "type": "computer_20241022",
+                    "name": "computer",
+                    "display_width_px": width,
+                    "display_height_px": height,
+                    "display_number": 1,
+                }
+            ]
+            self._started = True
+
+    async def stop(self):
+        """Stop the computer use client"""
+        if self._started:
+            await self.desktop.stop()
+            self._started = False
+
+    async def restart(self):
+        """Restart the computer use client"""
+        await self.stop()
+        await self.start()
 
     def _prepare_computer_tools(self) -> List[Dict[str, Any]]:
         """Prepare the computer use tools with current display dimensions."""
