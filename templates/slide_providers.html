@@ -120,7 +120,7 @@ auto; height: 100%; object-fit: contain; } {% endblock %} {% block content %}
             A small model for screen understanding that can enhance other
             language models.
           </p>
-          <div id="omniparser-demo">
+          <div id="omniparser-demo" class="omniparser-container">
             <img
               src="/desktop-stream"
               alt="Current Desktop"
@@ -132,7 +132,8 @@ auto; height: 100%; object-fit: contain; } {% endblock %} {% block content %}
     </li>
   </ul>
 </div>
-
+{% endblock %} {% block additional_scripts %}
+<script src="{{ url_for('static', filename='js/omniparser.js') }}"></script>
 <script src="{{ url_for('static', filename='js/omniparser_demo.js') }}"></script>
 <script>
   function toggleProvider(header) {

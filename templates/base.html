@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}{{ title }}{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/omniparser.css') }}"
+    />
     <style>
       body {
         margin: 0;
@@ -114,5 +118,8 @@
         Next
       </a>
     </div>
+
+    <script src="{{ url_for('static', filename='js/omniparser.js') }}"></script>
+    {% block additional_scripts %}{% endblock %}
   </body>
 </html>

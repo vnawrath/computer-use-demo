@@ -27,10 +27,13 @@ border-radius: 4px; cursor: pointer; transition: background-color 0.2s; }
 background: #666; cursor: not-allowed; } .typing-indicator { display: none;
 align-self: flex-start; background: rgba(255, 255, 255, 0.1); padding: 0.5rem
 1rem; border-radius: 8px; font-style: italic; color: #999; }
-.typing-indicator.visible { display: block; } {% endblock %} {% block content %}
+.typing-indicator.visible { display: block; } h2 { margin: 0 0 1rem 0;
+font-size: 1.5rem; color: #fff; opacity: 0.9; } {% endblock %} {% block content
+%}
 <h1>Claude Computer Use</h1>
 <div class="content-container">
   <div class="chat-interface">
+    <h2>Claude Chat</h2>
     <div class="chat-messages" id="chat-messages"></div>
     <div class="typing-indicator" id="typing-indicator">
       Claude is thinking...

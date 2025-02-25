@@ -5,6 +5,8 @@ from computer_use import ComputerUseClient
 from message_handler import MessageHandler
 from omniparser_manager import OmniParserManager
 import json
+import cv2
+import base64
 
 app = Quart(__name__)
 desktop_manager = DesktopManager()
@@ -176,17 +178,29 @@ async def omniparser_websocket():
                 # Receive message from client
                 message = await websocket.receive()
                 data = json.loads(message)
+                print(f"[OmniParser] Received websocket message: {data}")
 
                 if data["type"] == "analyze_request":
                     # Send analysis started event
                     await websocket.send(json.dumps({"type": "analysis_started"}))
+                    print("[OmniParser] Analysis started")
 
                     try:
                         # Get current screenshot
                         screenshot = await desktop_manager.take_screenshot()
+                        print(
+                            f"[OmniParser] Screenshot taken, size: {len(screenshot)} bytes"
+                        )
 
                         # Analyze the screenshot
                         detections = await omniparser_manager.analyze_image(screenshot)
+                        print(
+                            f"[OmniParser] Analysis complete. Found {len(detections)} detections:"
+                        )
+                        for det in detections:
+                            print(
+                                f"  - {det['class']} (conf: {det['confidence']:.2f}) at {det['coordinates']}"
+                            )
 
                         # Send results back to client
                         response = {
@@ -194,20 +208,31 @@ async def omniparser_websocket():
                             "detections": detections,
                         }
                         await websocket.send(json.dumps(response))
+                        print("[OmniParser] Results sent to client")
 
                     except Exception as e:
                         error_msg = str(e)
+                        print(f"[OmniParser] Error during analysis: {error_msg}")
                         await websocket.send(
                             json.dumps({"type": "analysis_error", "error": error_msg})
                         )
 
             except json.JSONDecodeError:
+                print("[OmniParser] Invalid message format received")
                 await websocket.send(
                     json.dumps({"type": "error", "content": "Invalid message format"})
                 )
 
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[OmniParser] WebSocket error: {str(e)}")
+        try:
+            await websocket.send(
+                json.dumps({"type": "error", "content": "WebSocket connection error"})
+            )
+        except:
+            pass
+    finally:
+        await message_handler.unregister(websocket._get_current_object())
 
 
 @app.before_serving
@@ -228,4 +253,4 @@ async def shutdown():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=5555)

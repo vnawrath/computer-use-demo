@@ -19,7 +19,7 @@ class DesktopManager:
 
     def _initialize(self):
         if self._sandbox is None:
-            self._sandbox = Sandbox(video_stream=True)
+            self._sandbox = Sandbox(timeout=3_600)
 
     def get_screen_size(self):
         """Get the current screen size from the sandbox.
@@ -32,9 +32,6 @@ class DesktopManager:
     @property
     def sandbox(self):
         return self._sandbox
-
-    def get_stream_url(self):
-        return self._sandbox.get_video_stream_url()
 
     async def move_mouse(self, x: int, y: int):
         """Move mouse to specified coordinates"""

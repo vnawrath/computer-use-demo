@@ -1,9 +1,14 @@
 import os
 import base64
+import logging
 from typing import List, Dict, Any, Optional, Callable, Awaitable
 from anthropic import Anthropic
 from desktop_sandbox import DesktopManager
 import asyncio
+
+# Configure basic logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class ComputerUseClient:
@@ -166,6 +171,9 @@ class ComputerUseClient:
                     {"type": "error", "content": error_msg, "metadata": {}}
                 )
 
+        # Wait for 2 seconds before returning the action result with the screenshot
+        await asyncio.sleep(2)
+
         # Take a screenshot after any action
         screenshot = await self.desktop.take_screenshot()
         screenshot_b64 = base64.b64encode(screenshot).decode("utf-8")
@@ -214,15 +222,26 @@ class ComputerUseClient:
 
         while iteration < max_iterations:
             try:
-                response = self.client.beta.messages.create(
-                    model="claude-3-5-sonnet-20241022",
-                    betas=["computer-use-2024-10-22"],
-                    max_tokens=max_tokens,
-                    temperature=temperature,
-                    system=system_message,
-                    messages=messages,
-                    tools=self._prepare_computer_tools(),
-                )
+                # Prepare API call parameters
+                api_params = {
+                    "model": "claude-3-5-sonnet-20241022",
+                    "betas": ["computer-use-2024-10-22"],
+                    "max_tokens": max_tokens,
+                    "temperature": temperature,
+                    "messages": messages,
+                    "tools": self._prepare_computer_tools(),
+                }
+
+                # Only add system message if it's provided and properly formatted
+                if system_message:
+                    if isinstance(system_message, str):
+                        api_params["system"] = [
+                            {"role": "system", "content": system_message}
+                        ]
+                    elif isinstance(system_message, list):
+                        api_params["system"] = system_message
+
+                response = self.client.beta.messages.create(**api_params)
 
                 # Convert Claude's response to a message
                 try:
